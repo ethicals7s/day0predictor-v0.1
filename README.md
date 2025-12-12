@@ -1,128 +1,141 @@
-Day0Predictor 🛡️ (v0.1)
+# Day0Predictor v0.1
 
-Early exploitation risk scoring for newly disclosed CVEs (defensive).
+**EPSS-Integrated Early Exploitation Risk Scoring (Defensive)**
 
-⚠️ This project does NOT predict unknown or undisclosed “true zero-day” vulnerabilities.
-It estimates the likelihood that a newly disclosed CVE will be exploited in the wild, helping defenders prioritize patching and response.
+Day0Predictor is a defensive security tool that estimates **early exploitation risk** for known CVEs by combining:
 
-🚨 Why this exists
+* **EPSS (Exploit Prediction Scoring System)** data
+* Lightweight ML models
+* Transparent feature-based explanations
 
-Security teams face hundreds of new CVEs every week.
-Most will never be exploited — a few will become incidents.
+> ⚠️ This tool **does not predict unknown vulnerabilities**.
+> It scores **likelihood of exploitation** for already-disclosed CVEs to help with **prioritization and triage**.
 
-Day0Predictor helps answer:
+---
 
-“Which newly disclosed CVEs should I worry about first?”
+## 🔍 Demo (Real Output)
 
-It combines:
+<img src="assets/demo.png" width="800" alt="Day0Predictor demo output">
 
-EPSS (industry-standard exploitation probability)
+Example output for **CVE-2021-44228 (Log4Shell)**:
 
-CISA Known Exploited Vulnerabilities (KEV) labels
+* Risk score: **98 / 100**
+* Mode: **trained_model_epss**
+* Explanation: EPSS score, percentile, and threshold indicators
 
-A transparent ML model with explainable outputs
+---
 
-✨ What v0.1 does
+## ✨ Features
 
-Builds a dataset from:
+* 📊 **EPSS-driven risk scoring**
+* 🧠 **Trained ML model with explanations**
+* 🪜 **Graceful fallback** (heuristics if no model exists)
+* 📄 **JSON & text output**
+* 🔍 **Explainable reasons per score**
+* 🧪 Fully tested pipeline
 
-EPSS exploitation scores
+---
 
-CISA KEV catalog (ground-truth exploitation)
+## 📦 Installation
 
-Trains a logistic regression model (simple, explainable)
+```bash
+git clone https://github.com/ethicals7s/day0predictor-v0.1.git
+cd day0predictor-v0.1
+python -m venv .venv
+source .venv/bin/activate  # Windows: .venv\Scripts\Activate.ps1
+pip install -e .
+```
 
-Outputs:
+---
 
-Risk score (0–100)
+## 🚀 Quick Start
 
-Feature-level reasons for the score
+### 1️⃣ Fetch EPSS data
 
-Provides a CLI tool for quick triage
+```bash
+python scripts/fetch_nvd.py
+```
 
-🚀 Quick demo (recommended)
+### 2️⃣ Build the dataset
 
-Score a well-known exploited vulnerability (Log4Shell):
+```bash
+python scripts/build_dataset.py
+```
 
-python -m day0predict.cli score-epss \
+### 3️⃣ Train the model
+
+```bash
+python scripts/train.py
+```
+
+---
+
+## 🧪 Score a CVE by ID (Recommended)
+
+```bash
+day0predict score-epss \
   --cve-id CVE-2021-44228 \
   --model models/day0predict.joblib \
   --format json
+```
 
-Example output:
+---
 
+## 📂 Score a CVE JSON File
+
+```bash
+day0predict score \
+  --file examples/cve_sample.json \
+  --model models/day0predict.joblib \
+  --format json
+```
+
+---
+
+## 🧠 Output Schema (JSON)
+
+```json
 {
   "cve_id": "CVE-2021-44228",
   "risk": 98,
   "mode": "trained_model_epss",
-  "features": {
-    "epss": 0.94358,
-    "percentile": 0.99957
-  },
-  "disclaimer": "Defensive risk scoring only. Uses EPSS-derived features."
+  "features": { "...": "..." },
+  "reasons": [
+    { "feature": "epss", "direction": "up", "weight": 3.57 }
+  ],
+  "disclaimer": "Defensive risk scoring only."
 }
-📦 Installation
-python -m venv .venv
-source .venv/bin/activate   # Windows: .\.venv\Scripts\Activate.ps1
-pip install -U pip
-pip install -e .
-🧪 Build the dataset & train
-python scripts/fetch_kev.py
-python scripts/fetch_nvd.py
-python scripts/build_dataset.py
-python scripts/train.py
+```
 
-This produces:
+---
 
-data/dataset.csv
+## 🛡️ Disclaimer
 
-models/day0predict.joblib
+This project is intended **for defensive security purposes only**:
 
-🖥️ CLI usage
-EPSS-based scoring (recommended)
-python -m day0predict.cli score-epss --cve-id CVE-2024-XXXX
-CVE JSON scoring (fallback / demo)
-python -m day0predict.cli score --file examples/cve_sample.json
-🧠 Model notes
+* Vulnerability prioritization
+* Risk triage
+* Blue-team analytics
 
-Optimized for early prioritization, not exploit prediction
+It is **not** a zero-day discovery system.
 
-Emphasizes precision over accuracy
+---
 
-Transparent coefficients → explainable decisions
+## 📌 Roadmap
 
-No exploit code, payloads, or weaponization logic
+* ⏳ Time-based CVE splits
+* 📈 Model calibration
+* 🌐 REST API
+* 🧩 SBOM / asset context
+* 🧠 SHAP-style explanations
 
-🛑 Threat model & ethics
+---
 
-Audience
+## ⭐ Star the Project
 
-SOC teams
+If this helped your work or research, a ⭐ on GitHub helps others discover it.
 
-Vulnerability management
+---
 
-Blue teams
-
-Non-goals
-
-Discovering unknown vulnerabilities
-
-Exploit development
-
-Bypassing security controls
-
-🗺️ Roadmap (v0.2+)
-
-Time-based train/test split (prevent leakage)
-
-Precision@K evaluation tables
-
-Additional ecosystem features (package age, vendor)
-
-Optional API (FastAPI)
-
-CI re-enable with offline test fixtures
-
-📜 License
-
-MIT
+**Author:** @ethicals7s
+**License:** MIT
