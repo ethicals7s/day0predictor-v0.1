@@ -1,128 +1,128 @@
-# Day0Predictor 🛡️ (v0.1)
+Day0Predictor 🛡️ (v0.1)
 
-**Early exploitation risk scoring for newly disclosed vulnerabilities (defensive).**
+Early exploitation risk scoring for newly disclosed CVEs (defensive).
 
-> ⚠️ This project does **NOT** predict unknown or undisclosed “true zero-day” vulnerabilities.
-> It estimates the **likelihood that a newly disclosed CVE will be exploited in the wild**, to help defenders prioritize triage and patching.
+⚠️ This project does NOT predict unknown or undisclosed “true zero-day” vulnerabilities.
+It estimates the likelihood that a newly disclosed CVE will be exploited in the wild, helping defenders prioritize patching and response.
 
----
+🚨 Why this exists
 
-## What v0.1 does
+Security teams face hundreds of new CVEs every week.
+Most will never be exploited — a few will become incidents.
 
-* Builds a dataset from:
+Day0Predictor helps answer:
 
-  * **NVD CVE data**
-  * **CISA Known Exploited Vulnerabilities (KEV)** catalog (used as labels)
-* Trains a **baseline logistic regression** model
-* Scores a CVE with:
+“Which newly disclosed CVEs should I worry about first?”
 
-  * **Risk score (0–100)**
-  * **Simple, transparent reason codes**
-* Includes:
+It combines:
 
-  * CLI tool
-  * Tests
-  * CI-ready structure
+EPSS (industry-standard exploitation probability)
 
----
+CISA Known Exploited Vulnerabilities (KEV) labels
 
-## Install (local)
+A transparent ML model with explainable outputs
 
-```bash
-python -m venv .venv
-source .venv/bin/activate  # Windows: .\.venv\Scripts\Activate.ps1
-pip install -U pip
-pip install -e .
-pip install pytest
-pytest
-```
+✨ What v0.1 does
 
----
+Builds a dataset from:
 
-## Build the dataset
+EPSS exploitation scores
 
-```bash
-python scripts/fetch_kev.py
-python scripts/fetch_nvd.py
-python scripts/build_dataset.py
-```
+CISA KEV catalog (ground-truth exploitation)
 
-This creates:
-
-```
-data/dataset.csv
-```
-
----
-
-## Train the model
-
-```bash
-python scripts/train.py
-```
-
-Model artifact:
-
-```
-models/day0predict.joblib
-```
-
----
-
-## Score a CVE JSON record
-
-Input must be a single CVE record (NVD-style JSON with a top-level `"cve"` object).
-
-```bash
-day0predict score --file path/to/cve.json
-day0predict score --file path/to/cve.json --format json
-```
-
-Example output:
-
-```
-CVE-2025-XXXX risk=87/100
- - base_score: up
- - attack_vector_network: up
- - keyword_rce: up
-```
-
----
-
-## Metrics
-
-For triage use-cases, precision matters more than accuracy.
-
-```bash
-python scripts/evaluate.py
-```
+Trains a logistic regression model (simple, explainable)
 
 Outputs:
 
-* precision@25
-* precision@50
-* precision@100
+Risk score (0–100)
 
----
+Feature-level reasons for the score
 
-## Threat model & ethics
+Provides a CLI tool for quick triage
 
-* **Audience:** defenders, SOC teams, vulnerability management
-* **Purpose:** prioritization & early risk assessment
-* **Non-goals:** exploit development, weaponization, bypassing defenses
+🚀 Quick demo (recommended)
 
----
+Score a well-known exploited vulnerability (Log4Shell):
 
-## Roadmap
+python -m day0predict.cli score-epss \
+  --cve-id CVE-2021-44228 \
+  --model models/day0predict.joblib \
+  --format json
 
-* Time-based train/test split (avoid leakage)
-* EPSS integration
-* More textual + ecosystem features
-* Better explainability
-* Optional API + dashboard
+Example output:
 
----
+{
+  "cve_id": "CVE-2021-44228",
+  "risk": 98,
+  "mode": "trained_model_epss",
+  "features": {
+    "epss": 0.94358,
+    "percentile": 0.99957
+  },
+  "disclaimer": "Defensive risk scoring only. Uses EPSS-derived features."
+}
+📦 Installation
+python -m venv .venv
+source .venv/bin/activate   # Windows: .\.venv\Scripts\Activate.ps1
+pip install -U pip
+pip install -e .
+🧪 Build the dataset & train
+python scripts/fetch_kev.py
+python scripts/fetch_nvd.py
+python scripts/build_dataset.py
+python scripts/train.py
 
-## License
+This produces:
+
+data/dataset.csv
+
+models/day0predict.joblib
+
+🖥️ CLI usage
+EPSS-based scoring (recommended)
+python -m day0predict.cli score-epss --cve-id CVE-2024-XXXX
+CVE JSON scoring (fallback / demo)
+python -m day0predict.cli score --file examples/cve_sample.json
+🧠 Model notes
+
+Optimized for early prioritization, not exploit prediction
+
+Emphasizes precision over accuracy
+
+Transparent coefficients → explainable decisions
+
+No exploit code, payloads, or weaponization logic
+
+🛑 Threat model & ethics
+
+Audience
+
+SOC teams
+
+Vulnerability management
+
+Blue teams
+
+Non-goals
+
+Discovering unknown vulnerabilities
+
+Exploit development
+
+Bypassing security controls
+
+🗺️ Roadmap (v0.2+)
+
+Time-based train/test split (prevent leakage)
+
+Precision@K evaluation tables
+
+Additional ecosystem features (package age, vendor)
+
+Optional API (FastAPI)
+
+CI re-enable with offline test fixtures
+
+📜 License
 
 MIT
