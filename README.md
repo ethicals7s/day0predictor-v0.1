@@ -1,3 +1,6 @@
+> **Day0Predictor** — Early exploitation risk scoring for CVEs using EPSS + ML  
+> Defensive research tool · Transparent scoring · No “zero-day” hype
+> 
 # Day0Predictor v0.1
 
 **EPSS-Integrated Early Exploitation Risk Scoring (Defensive)**
