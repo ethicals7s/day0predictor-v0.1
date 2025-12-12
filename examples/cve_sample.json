@@ -1,0 +1,8 @@
+﻿{
+  "cve": {
+    "id": "CVE-2099-0001",
+    "descriptions": [
+      { "lang": "en", "value": "Remote code execution vulnerability in example component." }
+    ]
+  }
+}

@@ -1,0 +1,19 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+.venv/
+.env
+.pytest_cache/
+
+dist/
+build/
+*.egg-info/
+
+# local datasets + trained models
+data/*.json
+data/*.csv
+models/*.joblib
+
+.DS_Store
